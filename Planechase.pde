@@ -157,13 +157,16 @@ float xL2;
 
 boolean hoverR;
 boolean hoverL;
-boolean flip;
 int imgCount;
 int activeImgCount;
 float r;
 boolean random;
 PImage[] mixedPlanar;
-
+String R;
+String L;
+int lastClickTime;
+int clickDelay;
+boolean hoverReset;
 void setup() {
   fullScreen();
   mixedPlanar=new PImage[146];
@@ -317,6 +320,7 @@ void setup() {
   Plane132 = loadImage("img/Planes/132.jpg");
   Plane133 = loadImage("img/Planes/133.jpg");
   Plane134 = loadImage("img/Planes/134.jpg");
+  textSize(80);
   makeArrayPhen();
   makeArrayPlanes();
   xR1=width-width/5;
@@ -332,13 +336,22 @@ void setup() {
   arrayCopy(phen, 0, mixedPlanar, 0, phen.length);
   arrayCopy(plane, 0, mixedPlanar, phen.length, plane.length);
   shuffle(mixedPlanar);
+  shuffle(mixedPlanar); 
+  shuffle(mixedPlanar); 
+  shuffle(mixedPlanar); 
+  shuffle(mixedPlanar);
   pixelDensity(1);
+  R="->";
+  L="<-";
+  lastClickTime=0;
+  clickDelay=300;
 }
 
 void draw() {
   background(0);
   hoverDetectR();
   hoverDetectL();
+  hoverDetectReset();
   display();
 }
 
@@ -376,21 +389,22 @@ boolean hoverDetectL() {
   return hoverL;
 }
 
-void mousePressed() {
-  clicks();
-  flip=true;
-}
-
 void mouseReleased() {
-  flip=false;
+  if (millis() - lastClickTime > clickDelay) {
+    clicks();
+    lastClickTime = millis();
+  }
 }
 
 void clicks() {
-  if (hoverR==true&&flip==false) {
+  if (hoverR==true) {
     Next();
   }
-  if (hoverL==true&&flip==false) {
+  if (hoverL==true&&activeImgCount>0) {
     Previous();
+  }
+  if(hoverReset==true){
+   reset(); 
   }
 }
 
@@ -404,8 +418,32 @@ void Previous() {
 }
 
 void display() {
-  image(mixedPlanar[activeImgCount], 0, 0);
-  text(activeImgCount, width/1.2, height/2);
+  PImage img = mixedPlanar[activeImgCount];
+
+  pushMatrix();
+  translate(width/2, height/2);
+  rotate(HALF_PI);
+  if (img.width<width/2.5) {
+    scale(1.25);
+  } else {
+    scale(1);
+  }
+  image(img, -img.width/2, -img.height/2);
+  popMatrix();
+  text(R, width-textWidth(R)*1.2, height/2);
+  text(L, textWidth(R)*0.2, height/2);
+  textSize(20);
+  text("Plane nummer: "+activeImgCount, width/8, height);
+  textSize(80);
+  if (activeImgCount==0) {
+    textSize(20);
+    text("Programmet kan godt have lidt problemer i starten, bare tryk to gange på højre pilen en enkelt gang først før spillet starter, og så burde det være fint nok", 20, width/16);
+    textSize(80);
+  }
+  rect(width/4+width/8,height-height/12,width/4,height/12);
+  fill(155);
+  text("Reset",width/4+width/8+textWidth("Reset")/2,height-width/128);
+  fill(255);
 }
 
 void shuffle(PImage[] arr) {
@@ -415,4 +453,22 @@ void shuffle(PImage[] arr) {
     arr[i] = arr[j];
     arr[j] = temp;
   }
+}
+
+boolean hoverDetectReset() {
+  hoverReset = false;
+  if (mouseX>width/4+width/8+textWidth("Reset")/2&&mouseX<(width/4+width/8+textWidth("Reset")/2)+width/4) {
+    hoverReset=true;
+  } else {
+    hoverReset=false;
+  }
+  return hoverReset;
+}
+
+void reset(){
+ shuffle(mixedPlanar);
+ shuffle(mixedPlanar); 
+ shuffle(mixedPlanar); 
+ shuffle(mixedPlanar); 
+ activeImgCount=0;
 }
