@@ -349,9 +349,6 @@ void setup() {
 
 void draw() {
   background(0);
-  hoverDetectR();
-  hoverDetectL();
-  hoverDetectReset();
   display();
 }
 
@@ -390,6 +387,9 @@ boolean hoverDetectL() {
 }
 
 void mouseReleased() {
+  hoverDetectR();
+  hoverDetectL();
+  hoverDetectReset();
   if (millis() - lastClickTime > clickDelay) {
     clicks();
     lastClickTime = millis();
@@ -435,11 +435,6 @@ void display() {
   textSize(20);
   text("Plane nummer: "+activeImgCount, width/8, height);
   textSize(80);
-  if (activeImgCount==0) {
-    textSize(20);
-    text("Programmet kan godt have lidt problemer i starten, bare tryk to gange på højre pilen en enkelt gang først før spillet starter, og så burde det være fint nok", 20, width/16);
-    textSize(80);
-  }
   rect(width/4+width/8,height-height/12,width/4,height/12);
   fill(155);
   text("Reset",width/4+width/8+textWidth("Reset")/2,height-width/128);
